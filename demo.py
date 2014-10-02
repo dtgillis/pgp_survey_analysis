@@ -14,8 +14,9 @@ Following lines each lists:
 
 import re
 import pgp_survey
+import numpy as np
 
-SURVEYS_DIRECTORY = 'surveys_20140910'
+SURVEYS_DIRECTORY = 'surveys_20140919'
 
 # Input trait surveys and list of traits.
 trait_surveys, trait_survey_traits = pgp_survey.get_trait_surveys(SURVEYS_DIRECTORY)
@@ -39,6 +40,7 @@ header = ['huID', 'Profile URL', 'Age', 'Sex/Gender',
 print '\t'.join(header)
 
 # Output participant ID and 'Y' for every trait a participant has.
+huid_trait_mat = []
 for huID in huID_list:
     url = 'https://my.personalgenomes.org/profile/' + huID
     age = 'Unknown'
@@ -50,9 +52,27 @@ for huID in huID_list:
         sex = latest_general_survey[13]
         race = latest_general_survey[14]
     huID_traits_flat = []
+
+
     for surv_num in range(len(trait_surveys)):
         huID_latest_data = trait_surveys[surv_num].get_latest_responses(huID)
-        traits = ['Y' if re.search(re.escape(x), huID_latest_data[1])
-                  else '' for x in trait_survey_traits[surv_num]]
+        traits = [1 if re.search(re.escape(x), huID_latest_data[1])
+                  else 0 for x in trait_survey_traits[surv_num]]
         [huID_traits_flat.append(x) for x in traits]
-    print '\t'.join([huID, url, age, sex, race] + huID_traits_flat)
+
+    #print '\t'.join([huID, url, age, sex, race] + huID_traits_flat)
+    huid_trait_mat.append(huID_traits_flat)
+
+train_mat = np.array(huid_trait_mat)
+similarity_matrix = np.zeros_like((train_mat.shape[0], train_mat.shape[0]))
+for i in similarity_matrix.shape[0]:
+    for j in similarity_matrix.shape[0]:
+        if i > j:
+            continue
+        else:
+            vec_1 = train_mat[i, :]
+            vec_2 = train_mat[j, :]
+            similarity_matrix[i, j] = vec_1 * vec_2.T / (np.linalg.norm(vec_1, 2) * np.linalg.norm(vec_2, 2))
+
+
+

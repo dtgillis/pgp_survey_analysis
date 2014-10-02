@@ -21,6 +21,7 @@ huID_list = list(in_all_surveys)
 huID_list.sort()
 
 # Output participant ID and 'Y' for every trait a participant has.
-for huID in huID_list:
-    if huID in participant_survey.by_huID:
-        print huID
+print len(huID_list)
+#for huID in huID_list:
+#    if huID in participant_survey.by_huID:
+#        print huID

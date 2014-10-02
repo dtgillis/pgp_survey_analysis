@@ -15,7 +15,7 @@ Following lines each lists:
 import re
 import pgp_survey
 import numpy as np
-
+from matplotlib.pyplot import *
 SURVEYS_DIRECTORY = 'surveys_20140919'
 
 # Input trait surveys and list of traits.
@@ -64,15 +64,13 @@ for huID in huID_list:
     huid_trait_mat.append(huID_traits_flat)
 
 train_mat = np.array(huid_trait_mat)
-similarity_matrix = np.zeros_like((train_mat.shape[0], train_mat.shape[0]))
-for i in similarity_matrix.shape[0]:
-    for j in similarity_matrix.shape[0]:
-        if i > j:
-            continue
-        else:
-            vec_1 = train_mat[i, :]
-            vec_2 = train_mat[j, :]
-            similarity_matrix[i, j] = vec_1 * vec_2.T / (np.linalg.norm(vec_1, 2) * np.linalg.norm(vec_2, 2))
+similarity_matrix = np.zeros((train_mat.shape[0], train_mat.shape[0]))
+for i in range(similarity_matrix.shape[0]):
+    for j in range(similarity_matrix.shape[0]):
+        vec_1 = train_mat[i, :]
+        vec_2 = train_mat[j, :]
+        similarity_matrix[i, j] = np.dot(vec_1, vec_2)/(np.linalg.norm(vec_1, 2) * np.linalg.norm(vec_2, 2))
 
 
-
+matshow(similarity_matrix)
+show()
